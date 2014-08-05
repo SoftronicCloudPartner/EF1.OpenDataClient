@@ -1,0 +1,130 @@
+﻿<h4>OData Source used in this page:</h4>
+<code><a href="@ViewBag.DataSourceUri">@ViewBag.DataSourceUri</a></code>
+<div id="diaryContainer">
+    <table cellspacing="0" class="table table-striped table-bordered" id="diaryInfo">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Date</th>
+                <th>Description</th>
+                <th>Responsible</th>
+                <th>Initiater</th>
+                <th>Status</th>
+                <th>Identifier</th>
+                <th>Type</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
+@section scripts {
+    <script type="text/javascript" charset="utf-8">
+        $(function () {
+            var oTable = $('#diaryInfo').dataTable({
+                "order": [[ 2, "desc" ]],
+                "aLengthMenu": [[10, 25, 50, -1], ["10", "25", "50", "All"]],
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "@System.Configuration.ConfigurationManager.AppSettings["DataSourceUriDiary"]",
+                "aoColumns": [
+                {
+                    "bSortable": false,
+                    "bSearchable": false,
+                    "mData": null,
+                    "sClass": "details-control",
+                    "sDefaultContent": "",
+                    "sWidth": "50px"
+                },
+                {
+                    "mData": "RegDate",
+                    "sType": "date",
+                    "sClass": "nowrap",
+                    "mRender": function (data) {
+                        return data == null ? "" : data.substring(0, 10);
+                    }
+                },
+                { "mData": "Description" },
+                { "mData": "Responsible" },
+                { "mData": "Identifier" },
+                { "mData": "Status" },
+                { "mData": "CaseId" },
+                {
+                    "mData": "EventId",
+                    "mRender": function (data) {
+                        return data == null ? "Case" : "Event";
+                    }
+                }
+                ],
+                "fnServerData": fnServerOData,
+                "iODataVersion": 4,
+                "bUseODataViaJSONP": false
+            });
+
+           $('#diaryInfo tbody').on('click', '.details-control', function () {
+               var nTr = $(this).parents('tr')[0];
+               if (oTable.fnIsOpen(nTr)) {
+                   $(nTr).removeClass('shown');
+                   oTable.fnClose(nTr);
+               }
+               else {
+                   $(nTr).addClass('shown');
+                   oTable.fnOpen(nTr, "<div class='well'>Loading...</div>", 'details');
+                   loadCase(nTr);
+               }
+           });
+
+           function loadCase(nTr) {
+               var aData = oTable.fnGetData(nTr);
+               var qry = "@System.Configuration.ConfigurationManager.AppSettings["DataSourceUriDiary"]";
+               qry += "?$filter=CaseId eq '" + aData.CaseId + "'&$orderby=EventId";
+
+                $.getJSON(qry, function (data) {
+                    oTable.fnOpen(nTr, formatDetailData(nTr, data.value), 'details');
+                });
+            }
+
+            function formatDetailData(nTr, data) {
+                var details = "<div class='well'>";
+                details += "<h3>" + data[0].Description + "</h3>";
+                details += "<div class='col-sm-6'>";
+                details += "<dl class='dl-horizontal'>";
+                details += "<dt>Identifier</dt><dd>" + data[0].Identifier + "</dd>";
+                details += "<dt>Status</dt><dd>" + data[0].Status + "</dd>";
+                details += "<dt>Date</dt><dd>" + data[0].RegDate.substring(0, 10) + "</dd>";
+                details += "</dl></div>";
+
+                details += "<div class='col-sm-6'>";
+                details += "<dl class='dl-horizontal'>";
+                details += "<dt>Responsible</dt><dd>" + data[0].Responsible + "</dd>";
+                details += "<dt>Initiater</dt><dd>" + data[0].Initiater + "</dd>";
+                details += "</dl></div>";
+
+                var tblBody = "<table class='table table-bordered table-striped table-condensed'>";
+                tblBody += "<tr>";
+                tblBody += "<th>Date</th>";
+                tblBody += "<th>Title</th>";
+                tblBody += "<th>Responsible</th>";
+                tblBody += "<th>Initiater</th>";
+                tblBody += "</tr>";
+
+                $.each(data, function () {
+                    if (this.EventId !== null) {
+                        var row = "";
+                        row += "<td>" + this.RegDate.substring(0, 10); + "</td>";
+                        row += "<td>" + this.Description + "</td>";
+                        row += "<td>" + this.Responsible + "</td>";
+                        row += "<td>" + this.Initiater + "</td>";
+                        tblBody += "<tr>" + row + "</tr>";
+                    }
+                });
+                tblBody += "</table>";
+                details += tblBody;
+                details += "</div>";
+
+                return details;
+            }
+
+       });
+    </script>
+}

@@ -1,0 +1,140 @@
+﻿
+<h4>OData Source used in this page:</h4>
+<code><a href="@ViewBag.DataSourceUri">@ViewBag.DataSourceUri</a></code>
+<div id="invoiceContainer">
+
+    <table cellspacing="0" class="table table-striped table-bordered" id="invoiceInfo">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Id</th>
+                <th>Issue Date</th>
+                <th>Total amount</th>
+                <th>Currency</th>
+                <th>Buyer</th>
+                <th>Seller</th>
+                <th>Note</th>
+                <th>ArticleDescription</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+
+    </table>
+
+</div>
+
+
+@section scripts {
+    <script type="text/javascript" charset="utf-8">
+
+        $(function () {
+            var oTable = $('#invoiceInfo').dataTable({
+                "aLengthMenu": [[5, 10, 25, -1], ["5", "10", "25", "All"]],
+                "bProcessing": true,
+                "bServerSide": true,
+                "sAjaxSource": "@System.Configuration.ConfigurationManager.AppSettings["DataSourceUriInvoice"]",
+                "aoColumns": [
+                    {
+                        "bSortable": false,
+                        "bSearchable": false,
+                        "mData": null,
+                        "sClass": "details-control",
+                        "sDefaultContent": "",
+                        "sWidth": "40px"
+
+                    },
+                    { "mData": "InvoiceId", "sWidth" : "80px" },
+                    {
+                        "mData": "IssueDate",
+                        "sType": "date",
+                        "mRender": function (data) {
+                            return data == null ? "" : data.substring(0, 10);
+                        },
+                        "sWidth" : "105px"
+                    },
+                    { "mData": "TotalLineAmount", "sWidth" : "125px" },
+                    { "mData": "Currency", "sWidth" : "80px" },
+                    { "mData": "Buyer" },
+                    { "mData": "Seller" },
+                    {
+                        "mData": "Note",
+                        "bVisible": false
+                    },
+                    {
+                        "mData": "ArticleDescription",
+                        "sType": "string",
+                        "sChild": "InvoiceLine",
+                        "bVisible": false,
+                        "sDefaultContent": ""
+                    }
+                ],
+                "fnServerData": fnServerOData,
+                "iODataVersion": 4,
+                "bUseODataViaJSONP": false
+
+
+            });
+
+            $('#invoiceInfo tbody').on('click', '.details-control', function () {
+                var nTr = $(this).parents('tr')[0];
+                if (oTable.fnIsOpen(nTr)) {
+                    $(nTr).removeClass('shown');
+                    oTable.fnClose(nTr);
+                } else {
+                    $(nTr).addClass('shown');
+                    oTable.fnOpen(nTr, formatDetails(oTable, nTr), 'details');
+                }
+            });
+
+        });
+
+        function formatDetails(oTable, nTr) {
+            var aData = oTable.fnGetData(nTr);
+            var details = "<div class='well'>";
+
+            details += "<div class='col-sm-6'>";
+            details += "<dl class='dl-horizontal'>";
+            details += "<dt>Invoice Id</dt><dd>" + aData.InvoiceId + "</dd>";
+            details += "<dt>Date</dt><dd>" + aData.IssueDate + "</dd>";
+            details += "<dt>Currency</dt><dd>" + aData.Currency + "</dd>";
+            details += "<dt>Buyer</dt><dd>" + aData.Buyer + "</dd>";
+            details += "<dt>Seller</dt><dd>" + aData.Seller + "</dd>";
+
+            details += "</dl></div>";
+
+            details += "<div class='col-sm-6'>";
+            details += "<dl class='dl-horizontal'>";
+
+            details += "<dt>Total Amount</dt><dd>" + aData.TotalInvoiceAmount + "</dd>";
+            details += "<dt>Total Line Amount</dt><dd>" + aData.TotalLineAmount + "</dd>";
+            details += "<dt>Total Taxbase Amount</dt><dd>" + aData.TotalTaxBaseAmount + "</dd>";
+            details += "<dt>Total Tax Amount</dt><dd>" + aData.TotalTaxAmount + "</dd>";
+            details += "</dl></div>";
+
+            details += "<div class='col-sm-12'>";
+            details += "<dl class='dl-horizontal'>";
+            details += "<dt>Note</dt><dd>" + aData.Note + "</dd>";
+            details += "</dl></div>";
+
+            var tblBody = "<table class='table table-bordered table-striped table-condensed'>";
+            $.each(aData.InvoiceLine[0], function (k) {
+                tblBody += "<th>" + k + "</th>";
+            });
+            $.each(aData.InvoiceLine, function () {
+                var tblRow = "";
+                $.each(this, function (k, v) {
+                    tblRow += "<td>" + v + "</td>";
+                });
+                tblBody += "<tr>" + tblRow + "</tr>";
+            });
+            tblBody += "</table>";
+            details += tblBody;
+            details += "</div>";
+            return details;
+
+        }
+
+    </script>
+
+}
+
