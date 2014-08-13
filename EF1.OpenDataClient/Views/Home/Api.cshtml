@@ -1,0 +1,147 @@
+﻿@{
+    ViewBag.Title = "Api";
+}
+
+
+<h3>
+    Examples of OData Queries using HTTP Method <strong>GET</strong>
+</h3>
+<p>
+    The examples can be directly executed in the address bar of the browser. <br/>
+    <strong>Note!</strong> The oData parameters in the url:s are case sensitive.
+</p>
+<h3>Invoice API</h3>
+<h4>Getting the first three invoices attribute "Buyer""</h4>
+<code>
+    http://oppnadata-test.azurewebsites.net/odata/Invoice?$top=2&$select=Buyer
+</code>
+
+<h5>Json Response:</h5>
+
+<pre>
+{
+    "@@odata.context":"http://oppnadata-test.azurewebsites.net/odata/$metadata#Invoice(Buyer)","value":[
+    {
+      "Buyer":"M\u00e5la En Massa AB"
+    },{
+      "Buyer":"Pite\u00e5 kommun"
+    }
+  ]
+}  
+</pre>
+
+
+<h4>Getting the a single invoice</h4>
+<code>
+    http://oppnadata-test.azurewebsites.net/odata/Invoice(2039)
+</code>
+
+<h5>Json Response:</h5>
+
+<pre>
+{
+  "@@odata.context":"http://oppnadata-test.azurewebsites.net/odata/$metadata#Invoice/$entity","ID":2039,"InvoiceId":41067047,"IssueDate":"2014-06-30 00:00:00.0000000","Currency":"SEK","Note":"","Buyer":"M\u00e5la En Massa AB","Seller":"F\u00e4rgfirman Skakburken AB","TotalInvoiceAmount":26595,"TotalLineAmount":21276,"TotalTaxBaseAmount":21276,"TotalTaxAmount":5319
+}  
+</pre>
+
+
+
+<h4>Getting the a single invoice including all it's invoice rows. </h4>
+<code>
+    http://oppnadata-test.azurewebsites.net/odata/Invoice(2039)?$expand=InvoiceLine
+</code>
+
+<h5>Json Response:</h5>
+
+<pre>
+    {
+  "@@odata.context":"http://oppnadata-test.azurewebsites.net/odata/$metadata#Invoice/$entity","ID":2039,"InvoiceId":41067047,"IssueDate":"2014-06-30 00:00:00.0000000","Currency":"SEK","Note":"","Buyer":"M\u00e5la En Massa AB","Seller":"F\u00e4rgfirman Skakburken AB","TotalInvoiceAmount":26595,"TotalLineAmount":21276,"TotalTaxBaseAmount":21276,"TotalTaxAmount":5319,"InvoiceLine":[
+    {
+      "ID":2091,"LineNbr":1,"ArticleDescription":"Avtal 00001, Avtal Klientl\u00f6sningar","QuantityInvoiced":0,"QuantityInvoicedUOM":"","UnitPrice":0,"LineAmount":0,"InvoiceId":2039
+    },{
+      "ID":2092,"LineNbr":2,"ArticleDescription":"Konsulttimmar","QuantityInvoiced":12,"QuantityInvoicedUOM":"TIM","UnitPrice":1013,"LineAmount":12156,"InvoiceId":2039
+    },{
+      "ID":2093,"LineNbr":3,"ArticleDescription":"\u00d6vertid 17-20, 06-08","QuantityInvoiced":6,"QuantityInvoicedUOM":"TIM","UnitPrice":1520,"LineAmount":9120,"InvoiceId":2039
+    },{
+      "ID":2094,"LineNbr":4,"ArticleDescription":"Restid","QuantityInvoiced":2,"QuantityInvoicedUOM":"TIM","UnitPrice":0,"LineAmount":0,"InvoiceId":2039
+    },{
+      "ID":2095,"LineNbr":5,"ArticleDescription":"Km ers\u00e4ttning","QuantityInvoiced":220,"QuantityInvoicedUOM":"KM","UnitPrice":0,"LineAmount":0,"InvoiceId":2039
+    }
+  ]
+}
+</pre>
+
+<h4>Getting all invoices with an total amount greater than 10000 </h4>
+<code>
+    http://oppnadata-test.azurewebsites.net/odata/Invoice/?$filter=TotalInvoiceAmount%20gt%2010000
+</code>
+
+<h5>Json Response:</h5>
+
+<pre>
+{
+  "@@odata.context":"http://oppnadata-test.azurewebsites.net/odata/$metadata#Invoice","value":[
+    {
+      "ID":2039,"InvoiceId":41067047,"IssueDate":"2014-06-30 00:00:00.0000000","Currency":"SEK","Note":"","Buyer":"M\u00e5la En Massa AB","Seller":"F\u00e4rgfirman Skakburken AB","TotalInvoiceAmount":26595,"TotalLineAmount":21276,"TotalTaxBaseAmount":21276,"TotalTaxAmount":5319
+    },{
+      "ID":2041,"InvoiceId":41063369,"IssueDate":"2014-06-29 00:00:00.0000000","Currency":"SEK","Note":"","Buyer":"H\u00f6ga Muren AB","Seller":"Sten Och S\u00e5nt AB","TotalInvoiceAmount":27363,"TotalLineAmount":21890,"TotalTaxBaseAmount":21890,"TotalTaxAmount":5473
+    }
+  ]
+}
+</pre>
+
+
+
+<h3>Diarie API</h3>
+<h4>Get all Events for CaseId 200001 and order by EventId</h4>
+<code>
+    http://oppnadata-test.azurewebsites.net/odata/Diarie?$filter=CaseId%20eq%20%27200001%27&$orderby=EventId
+</code>
+
+<h5>Json Response:</h5>
+
+<pre>
+{
+  "@@odata.context":"http://oppnadata-test.azurewebsites.net/odata/$metadata#Diarie","value":[
+    {
+      "ID":211,"CaseId":"200001","EventId":null,"Identifier":"11/00001","Description":"Planering av blommor i stadsparken","Responsible":"Carrie Hughes","Initiater":"Roger Hamilton","Status":"Behandlas","Type":"NA","Area":"Diarie-Robin","RegDate":"2011-05-23T18:01:00Z"
+    },{
+      "ID":212,"CaseId":"200001","EventId":null,"Identifier":"11/00001","Description":"Planering av blommor i stadsparken","Responsible":"Carrie Hughes","Initiater":"Roger Hamilton","Status":"Behandlas","Type":"NA","Area":"Diarie-Robin","RegDate":"2011-05-23T18:01:00Z"
+    },{
+      "ID":213,"CaseId":"200001","EventId":"200001","Identifier":"11/00001","Description":"Ans\u00f6kan om planering av blommor i stadsparken","Responsible":"Carrie Hughes","Initiater":"Roger Hamilton","Status":"Behandlas","Type":"NA","Area":"Diarie-Robin","RegDate":"2011-05-23T18:03:00Z"
+    },{
+      "ID":214,"CaseId":"200001","EventId":"200002","Identifier":"11/00001","Description":"Svar p\u00e5 ans\u00f6kan om plantering av blommor i stadsparken","Responsible":"Carrie Hughes","Initiater":"Roger Hamilton","Status":"Behandlas","Type":"NA","Area":"Diarie-Robin","RegDate":"2011-05-23T18:10:00Z"
+    },{
+      "ID":215,"CaseId":"200001","EventId":"200005","Identifier":"11/00001","Description":"Planering av blommor i stadsparken","Responsible":"Carrie Hughes","Initiater":"Roger Hamilton","Status":"Behandlas","Type":"NA","Area":"Diarie-Robin","RegDate":"2011-05-23T18:39:00Z"
+    },{
+      "ID":216,"CaseId":"200001","EventId":"200006","Identifier":"11/00001","Description":"Planering av blommor i stadsparken","Responsible":"Carrie Hughes","Initiater":"Roger Hamilton","Status":"Behandlas","Type":"NA","Area":"Diarie-Robin","RegDate":"2011-05-23T18:39:00Z"
+    },{
+      "ID":217,"CaseId":"200001","EventId":"200008","Identifier":"11/00001","Description":"Beslut KN, 2011-05-24, \u00c4rende 1/11, Planering av blommor i stadsparken","Responsible":"Carrie Hughes","Initiater":"Roger Hamilton","Status":"Behandlas","Type":"NA","Area":"Diarie-Robin","RegDate":"2011-05-23T18:58:00Z"
+    }
+  ]
+}
+</pre>
+
+
+
+
+<h4>Get the description all Cases (EventId=null) with responsible "Hughes"</h4>
+<code>
+    http://oppnadata-test.azurewebsites.net/odata/Diarie?$filter=EventId%20eq%20null%20and%20indexof(Responsible,%20%27Hughes%27)%20gt%20-1&$select=Description
+</code>
+
+<h5>Json Response:</h5>
+
+<pre>
+{
+  "@@odata.context":"http://oppnadata-test.azurewebsites.net/odata/$metadata#Diarie(Description)","value":[
+    {
+      "Description":"Planering av blommor i stadsparken"
+    },{
+      "Description":"Planering av blommor i stadsparken"
+    },{
+      "Description":"\u00d6ppet Diarium"
+    }
+  ]
+}
+</pre>

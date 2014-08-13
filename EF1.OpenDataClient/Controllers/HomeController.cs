@@ -18,9 +18,13 @@ namespace EF1.OpenDataClient.Controllers
             return View();
         }
 
+        public ActionResult Api()
+        {
+            return View();
+        }
+
         public ActionResult About()
         {
-            
             return View();
         }
 
